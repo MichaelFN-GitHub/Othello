@@ -10,18 +10,18 @@ public class AI {
     public static final int BLACK_WIN = 999999;
     public static final int WHITE_WIN = -999999;
     public static final int TIE = 0;
-    public static final int MAX_DEPTH_BLACK = 13;
-    public static final int MAX_DEPTH_WHITE = 5;
+    public static final int MAX_DEPTH_BLACK = 9;
+    public static final int MAX_DEPTH_WHITE = 9;
 
     private static BitboardGameState gameState;
-    private static final int BLACK_TYPE = 1; //Version of the AI to test different versions against each other.
+    private static final int BLACK_TYPE = 2; //Version of the AI to test different versions against each other.
     private static final int WHITE_TYPE = 2;
 
     private static final int BOARD_SCORE = 0;
     private static final int PLACEMENT = 1;
     private static final int MOBILITY = 2;
-    private static final int[] EARLY_GAME_WEIGHTS = { 1, 5, 2 };
-    private static final int[] END_GAME_WEIGHTS = { 10, 1, 1 };
+    private static final int[] EARLY_GAME_WEIGHTS = { 1, 2, 0 };
+    private static final int[] END_GAME_WEIGHTS = { 10, 1, 0 };
 
     private static final int STABLE_PIECE_SCORE = 4;
     private static final int END_GAME_CAP = 44;
