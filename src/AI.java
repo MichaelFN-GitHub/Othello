@@ -1,5 +1,6 @@
 import Engine.BitboardGameState;
 import static Engine.BitboardGameState.BLACK;
+import static Engine.BitboardGameState.WHITE;
 
 import java.text.NumberFormat;
 import java.util.Date;
@@ -8,11 +9,15 @@ import java.util.List;
 public class AI {
     public static final int BLACK_WIN = 999999;
     public static final int WHITE_WIN = -999999;
-    public static final int MAX_DEPTH = 9;
+    public static final int MAX_DEPTH_WHITE = 11;
+    public static final int MAX_DEPTH_BLACK = 11;
 
     private static BitboardGameState gameState;
+    private static final int BLACK_TYPE = 2; //Version of the AI to test different different versions against each other.
+    private static final int WHITE_TYPE = 1;
 
     private static int evaluatedStates;
+    private static int currentType;
 
     public static int findNextMove(BitboardGameState game) {
         if (game.isGameOver()) {
@@ -20,17 +25,19 @@ public class AI {
         }
         System.out.println("Finding best move...");
 
+        int maxDepth = game.getPlayerToMove() == BLACK ? MAX_DEPTH_BLACK : MAX_DEPTH_WHITE;
+        currentType = game.getPlayerToMove() == BLACK ? BLACK_TYPE : WHITE_TYPE;
         evaluatedStates = 0;
         NumberFormat format = NumberFormat.getInstance();
         format.setGroupingUsed(true);
 
         long timeBeforeSearch = new Date().getTime();
-        int[] moveAndScore = miniMax(game, MAX_DEPTH);  //Search
+        int[] moveAndScore = miniMax(game, maxDepth);  //Search
         long timeAfterSearch = new Date().getTime();
         long searchTime = timeAfterSearch - timeBeforeSearch + 1;
 
         System.out.println(
-                "Depth: \t\t\t\t" + MAX_DEPTH
+                "Depth: \t\t\t\t" + maxDepth
                 + "\nBest move: \t\t\t" + moveAndScore[0]
                 + "\nScore: \t\t\t\t" + moveAndScore[1]
                 + "\nEvaluated states: \t" + format.format(evaluatedStates) + " evaluated states"
@@ -102,33 +109,32 @@ public class AI {
         //Evaluate board score
         int boardScore = numberOfBlackPieces - numberOfWhitePieces;
 
-
-/*
         //Evaluate disk placement
-        long[] pieces = gameState.getPieces().clone();
-        int placementScore = 0;
+        if (currentType > 1) {
+            long[] pieces = gameState.getPieces().clone();
+            int placementScore = 0;
 
-        while(pieces[BLACK] != 0L) {
-            int index = Long.numberOfTrailingZeros(pieces[BLACK]);
-            placementScore += BLACK_DISK_PLACEMENT_TABLE[index];
-            pieces[BLACK] &= pieces[BLACK] - 1;
+            while(pieces[BLACK] != 0L) {
+                int index = Long.numberOfTrailingZeros(pieces[BLACK]);
+                placementScore += BLACK_DISK_PLACEMENT_TABLE[index];
+                pieces[BLACK] &= pieces[BLACK] - 1;
+            }
+
+            while(pieces[WHITE] != 0L) {
+                int index = Long.numberOfTrailingZeros(pieces[WHITE]);
+                placementScore += WHITE_DISK_PLACEMENT_TABLE[index];
+                pieces[WHITE] &= pieces[WHITE] - 1;
+            }
+            eval += placementScore;
         }
-
-        while(pieces[WHITE] != 0L) {
-            int index = Long.numberOfTrailingZeros(pieces[WHITE]);
-            placementScore += WHITE_DISK_PLACEMENT_TABLE[index];
-            pieces[WHITE] &= pieces[WHITE] - 1;
-        }
-
 
         //TODO: Evaluate mobility
-        int mobility = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
- */
+        //int mobility = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
+
 
 
         //TODO: Weigh scores based on game state (early, mid, late)
         eval += boardScore;
-        //eval += placementScore;
         //eval += mobility;
 
         return eval;
