@@ -231,6 +231,10 @@ public class BitboardGameState {
         }
     }
 
+    public int getPiece(int x, int y) {
+        return getPiece(x*8+y);
+    }
+
     public boolean isGameOver() {
         return gameOver;
     }

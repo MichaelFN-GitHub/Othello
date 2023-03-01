@@ -13,7 +13,7 @@ import static Engine.BitboardGameState.WHITE;
 
 public class UI extends JPanel implements MouseListener, KeyListener {
     public static final int TILES = 8;
-    public static final int TILE_SIZE = 90;
+    public static final int TILE_SIZE = 70;
     public static final int PIECE_SIZE = TILE_SIZE - TILE_SIZE / 10;
     public static final int PIECE_FILL = (TILE_SIZE - PIECE_SIZE) / 2;
 

@@ -9,12 +9,12 @@ import java.util.List;
 public class AI {
     public static final int BLACK_WIN = 999999;
     public static final int WHITE_WIN = -999999;
-    public static final int MAX_DEPTH_WHITE = 11;
-    public static final int MAX_DEPTH_BLACK = 11;
+    public static final int MAX_DEPTH_BLACK = 9;
+    public static final int MAX_DEPTH_WHITE = 9;
 
     private static BitboardGameState gameState;
-    private static final int BLACK_TYPE = 2; //Version of the AI to test different different versions against each other.
-    private static final int WHITE_TYPE = 1;
+    private static final int BLACK_TYPE = 2; //Version of the AI to test different versions against each other.
+    private static final int WHITE_TYPE = 2;
 
     private static final int BOARD_SCORE = 0;
     private static final int PLACEMENT = 1;
@@ -27,9 +27,11 @@ public class AI {
     private static int currentType;
 
     public static int findNextMove(BitboardGameState game) {
+        gameState = game;
         if (game.isGameOver()) {
             return -1;
         }
+
         System.out.println("Finding best move...");
 
         int maxDepth = game.getPlayerToMove() == BLACK ? MAX_DEPTH_BLACK : MAX_DEPTH_WHITE;
@@ -45,19 +47,18 @@ public class AI {
 
         System.out.println(
                 "Depth: \t\t\t\t" + maxDepth
-                + "\nBest move: \t\t\t" + moveAndScore[0]
-                + "\nScore: \t\t\t\t" + moveAndScore[1]
-                + "\nEvaluated states: \t" + format.format(evaluatedStates) + " evaluated states"
-                + "\nSearch time: \t\t" + searchTime + " ms"
-                + "\nNodes per second: \t" + format.format((long)evaluatedStates*1000/searchTime) + " nodes/s"
-                + "\n"
+                        + "\nBest move: \t\t\t" + moveAndScore[0]
+                        + "\nScore: \t\t\t\t" + moveAndScore[1]
+                        + "\nEvaluated states: \t" + format.format(evaluatedStates) + " evaluated states"
+                        + "\nSearch time: \t\t" + searchTime + " ms"
+                        + "\nNodes per second: \t" + format.format((long)evaluatedStates*1000/searchTime) + " nodes/s"
+                        + "\n"
         );
 
         return moveAndScore[0];
     }
 
     public static int[] miniMax(BitboardGameState game, int depth) {
-        gameState = game;
         return miniMax(depth, game.getPlayerToMove() == BLACK, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
@@ -100,6 +101,8 @@ public class AI {
     }
 
     private static int evaluation(BitboardGameState gameState) {
+        int STABLE_PIECE_SCORE = 4;
+
         int eval = 0;
         int boardScore = 0;
         int placementScore = 0;
@@ -123,9 +126,20 @@ public class AI {
 
         //Evaluate disk placement
         if (currentType > 1) {
-            long[] pieces = gameState.getPieces().clone();
+            //long[] pieces = gameState.getPieces().clone();
+            boolean[][] stablePieces = getStablePieces();
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (stablePieces[i][j]) {
+                        placementScore += player == WHITE ? -STABLE_PIECE_SCORE : STABLE_PIECE_SCORE;
+                    }
+                    else {
+                        placementScore += player == WHITE ? WHITE_DISK_PLACEMENT_TABLE[i*8+j] : BLACK_DISK_PLACEMENT_TABLE[i*8+j];
+                    }
+                }
+            }
 
-            while(pieces[BLACK] != 0L) {
+            /*while(pieces[BLACK] != 0L) {
                 int index = Long.numberOfTrailingZeros(pieces[BLACK]);
                 placementScore += BLACK_DISK_PLACEMENT_TABLE[index];
                 pieces[BLACK] &= pieces[BLACK] - 1;
@@ -135,8 +149,7 @@ public class AI {
                 int index = Long.numberOfTrailingZeros(pieces[WHITE]);
                 placementScore += WHITE_DISK_PLACEMENT_TABLE[index];
                 pieces[WHITE] &= pieces[WHITE] - 1;
-            }
-            eval += placementScore;
+            }*/
 
             //Evaluate mobility
             mobilityScore = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
@@ -157,20 +170,51 @@ public class AI {
         return eval;
     }
 
+    //Finds the stable pieces (pieces that cannot be taken).
+    private static boolean[][] getStablePieces() {
+        int side = gameState.getPlayerToMove();
+        boolean[][] stablePieces = new boolean[8][8];
+        for (int dx = -1; dx <= 1; dx+=2) {
+            for (int dy = -1; dy <= 1; dy+=2) {
+                for (int k = 0; k <= 1; k++) {
+                    int prevJ = dy == -1 ? -1 : 8;
+                    for (int i = (dx == -1 ? 7 : 0); (dx == -1 ? i >= 0 : i < 8); i+=dx) {
+                        int j;
+                        for (j = (dy == -1 ? 7 : 0); (dy == -1 ? j >= prevJ+2 : j < prevJ-1); j+=dy) {
+                            int x = k == 0 ? i : j;
+                            int y = k == 0 ? j : i;
+                            if (gameState.getPiece(x, y) == side) {
+                                stablePieces[x][y] = true;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        prevJ = j;
+                        if (j == (dy == -1 ? 7 : 0)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return stablePieces;
+    }
+
     public static int getEvaluation(BitboardGameState gameState) {
         return evaluation(gameState);
     }
 
     private static final int[] BLACK_DISK_PLACEMENT_TABLE =
             {
-             4, -3,  2,  2,  2,  2, -3,  4,
-            -3, -4, -1, -1, -1, -1, -4, -3,
-             2, -1,  1,  0,  0,  1, -1,  2,
-             2, -1,  0,  1,  1,  0, -1,  2,
-             2, -1,  0,  1,  1,  0, -1,  2,
-             2, -1,  1,  0,  0,  1, -1,  2,
-            -3, -4, -1, -1, -1, -1, -4, -3,
-             4, -3,  2,  2,  2,  2, -3,  4,
+                    4, -3,  2,  2,  2,  2, -3,  4,
+                    -3, -4, -1, -1, -1, -1, -4, -3,
+                    2, -1,  1,  0,  0,  1, -1,  2,
+                    2, -1,  0,  1,  1,  0, -1,  2,
+                    2, -1,  0,  1,  1,  0, -1,  2,
+                    2, -1,  1,  0,  0,  1, -1,  2,
+                    -3, -4, -1, -1, -1, -1, -4, -3,
+                    4, -3,  2,  2,  2,  2, -3,  4,
             };
 
     private static final int[] WHITE_DISK_PLACEMENT_TABLE = new int[64];
