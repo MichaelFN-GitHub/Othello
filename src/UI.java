@@ -212,7 +212,7 @@ public class UI extends JPanel implements MouseListener, KeyListener {
                 String winner = numberOfBlackPieces > numberOfWhitePieces ? "Black" : "White";
                 text = winner + " WINS!";
             } else {
-                text = (game.getPlayerToMove() == GameState.BLACK ? "Black" : "White") + " to move";
+                text = (game.getPlayerToMove() == BLACK ? "Black" : "White") + " to move";
             }
             textWidth = g.getFontMetrics(g.getFont()).stringWidth(text);
             g.setColor(Color.LIGHT_GRAY);

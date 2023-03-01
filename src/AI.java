@@ -8,7 +8,7 @@ import java.util.List;
 public class AI {
     public static final int BLACK_WIN = 999999;
     public static final int WHITE_WIN = -999999;
-    public static final int MAX_DEPTH = 15;
+    public static final int MAX_DEPTH = 9;
 
     private static BitboardGameState gameState;
 
@@ -121,7 +121,7 @@ public class AI {
         }
 
 
-        //Evaluate mobility
+        //TODO: Evaluate mobility
         int mobility = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
  */
 
