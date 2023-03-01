@@ -221,6 +221,16 @@ public class BitboardGameState {
         return pieces;
     }
 
+    public int getPiece(int index) {
+        if (getBit(pieces[BLACK], index) != 0) {
+            return BLACK;
+        } else if (getBit(pieces[WHITE], index) != 0) {
+            return WHITE;
+        } else {
+            return -1;
+        }
+    }
+
     public boolean isGameOver() {
         return gameOver;
     }

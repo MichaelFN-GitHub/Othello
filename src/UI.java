@@ -56,8 +56,6 @@ public class UI extends JPanel implements MouseListener, KeyListener {
     public void paint(Graphics g) {
         super.paint(g);
 
-        long[] pieces = game.getPieces();
-
         //Draw tiles
         for (int i = 0; i < TILES; i++) {
             for (int j = 0; j < TILES; j++) {
@@ -82,9 +80,10 @@ public class UI extends JPanel implements MouseListener, KeyListener {
         for (int i = 0; i < TILES; i++) {
             for (int j = 0; j < TILES; j++) {
                 int index = j * 8 + i;
-                if ((pieces[BLACK] & (1L << index)) != 0L) {
+                int piece = game.getPiece(index);
+                if (piece == BLACK) {
                     g.setColor(Color.BLACK);
-                } else if ((pieces[WHITE] & (1L << index)) != 0L) {
+                } else if (piece == WHITE) {
                     g.setColor(Color.WHITE);
                 } else {
                     g.setColor(Color.LIGHT_GRAY);
