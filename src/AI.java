@@ -16,6 +16,13 @@ public class AI {
     private static final int BLACK_TYPE = 2; //Version of the AI to test different different versions against each other.
     private static final int WHITE_TYPE = 1;
 
+    private static final int BOARD_SCORE = 0;
+    private static final int PLACEMENT = 1;
+    private static final int MOBILITY = 2;
+    private static final int[] EARLY_GAME_WEIGHTS = { 1, 10, 10 };
+    private static final int[] END_GAME_WEIGHTS = { 10, 1, 1 };
+
+
     private static int evaluatedStates;
     private static int currentType;
 
@@ -94,9 +101,14 @@ public class AI {
 
     private static int evaluation(BitboardGameState gameState) {
         int eval = 0;
+        int boardScore = 0;
+        int placementScore = 0;
+        int mobilityScore = 0;
+
         int player = gameState.getPlayerToMove();
         int numberOfBlackPieces = gameState.getNumberOfBlackPieces();
         int numberOfWhitePieces = gameState.getNumberOfWhitePieces();
+        boolean isEndGame = numberOfBlackPieces + numberOfWhitePieces > 44;
 
         if (gameState.isGameOver()) {
             if (numberOfBlackPieces + numberOfWhitePieces == 64) {
@@ -107,12 +119,11 @@ public class AI {
         }
 
         //Evaluate board score
-        int boardScore = numberOfBlackPieces - numberOfWhitePieces;
+        boardScore = numberOfBlackPieces - numberOfWhitePieces;
 
         //Evaluate disk placement
         if (currentType > 1) {
             long[] pieces = gameState.getPieces().clone();
-            int placementScore = 0;
 
             while(pieces[BLACK] != 0L) {
                 int index = Long.numberOfTrailingZeros(pieces[BLACK]);
@@ -126,16 +137,22 @@ public class AI {
                 pieces[WHITE] &= pieces[WHITE] - 1;
             }
             eval += placementScore;
+
+            //Evaluate mobility
+            mobilityScore = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
         }
 
-        //TODO: Evaluate mobility
-        //int mobility = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
 
-
-
-        //TODO: Weigh scores based on game state (early, mid, late)
-        eval += boardScore;
-        //eval += mobility;
+        //Weigh scores based on game state (early, late)
+        if (isEndGame) {
+            eval += boardScore * END_GAME_WEIGHTS[BOARD_SCORE];
+            eval += placementScore * END_GAME_WEIGHTS[PLACEMENT];
+            eval += mobilityScore * END_GAME_WEIGHTS[MOBILITY];
+        } else {
+            eval += boardScore * EARLY_GAME_WEIGHTS[BOARD_SCORE];
+            eval += boardScore * EARLY_GAME_WEIGHTS[PLACEMENT];
+            eval += mobilityScore * EARLY_GAME_WEIGHTS[MOBILITY];
+        }
 
         return eval;
     }
