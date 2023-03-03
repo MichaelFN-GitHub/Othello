@@ -208,8 +208,12 @@ public class UI extends JPanel implements MouseListener, KeyListener {
             textSize = getWidth() / 20;
             g.setFont(new Font(Font.SANS_SERIF, Font.BOLD,  textSize));
             if (game.isGameOver()) {
-                String winner = numberOfBlackPieces > numberOfWhitePieces ? "Black" : "White";
-                text = winner + " WINS!";
+                if (numberOfBlackPieces == numberOfWhitePieces) {
+                    text = "TIE";
+                } else {
+                    String winner = numberOfBlackPieces > numberOfWhitePieces ? "Black" : "White";
+                    text = winner + " WINS!";
+                }
             } else {
                 text = (game.getPlayerToMove() == BLACK ? "Black" : "White") + " to move";
             }

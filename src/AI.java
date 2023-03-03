@@ -7,26 +7,27 @@ import java.util.Date;
 import java.util.List;
 
 public class AI {
+    //Evaluation constants.
     public static final int BLACK_WIN = 999999;
     public static final int WHITE_WIN = -999999;
     public static final int TIE = 0;
+    private static final int BOARD_SCORE = 0;
+    private static final int MOBILITY = 1;
+    private static final int PLACEMENT = 2;
+    private static final int[] EARLY_GAME_WEIGHTS = { 0, 2, 2 };    //Disks, Mobility, Placement
+    private static final int[] END_GAME_WEIGHTS = { 5, 0, 1 };
+    private static final int STABLE_PIECE_SCORE = 4;
+    private static final int END_GAME_CAP = 60;
+    private static int previousTurnPlayer;
+    private static int previousTurnNumberOfMoves;
+
+    //Version of the AI to test different versions against each other.
+    private static final int BLACK_TYPE = 3;
+    private static final int WHITE_TYPE = 3;
     public static final int MAX_DEPTH_BLACK = 9;
     public static final int MAX_DEPTH_WHITE = 9;
 
     private static BitboardGameState gameState;
-    private static final int BLACK_TYPE = 2; //Version of the AI to test different versions against each other.
-    private static final int WHITE_TYPE = 2;
-
-    private static final int BOARD_SCORE = 0;
-    private static final int PLACEMENT = 1;
-    private static final int MOBILITY = 2;
-    private static final int[] EARLY_GAME_WEIGHTS = { 1, 2, 0 };
-    private static final int[] END_GAME_WEIGHTS = { 10, 1, 0 };
-
-    private static final int STABLE_PIECE_SCORE = 4;
-    private static final int END_GAME_CAP = 44;
-
-
     private static int evaluatedStates;
     private static int currentType;
 
@@ -53,9 +54,9 @@ public class AI {
                 "Depth: \t\t\t\t" + maxDepth
                         + "\nBest move: \t\t\t" + moveAndScore[0]
                         + "\nScore: \t\t\t\t" + moveAndScore[1]
-                        + "\nEvaluated states: \t" + format.format(evaluatedStates) + " evaluated states"
+                        + "\nEvaluated states: \t" + format.format(evaluatedStates)
                         + "\nSearch time: \t\t" + searchTime + " ms"
-                        + "\nNodes per second: \t" + format.format((long)evaluatedStates*1000/searchTime) + " nodes/s"
+                        + "\nNodes per second: \t" + format.format((long)evaluatedStates*1000/searchTime)
                         + "\n"
         );
 
@@ -77,6 +78,9 @@ public class AI {
         int[] bestScore = new int[2];
         bestScore[1] = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         for (int move : moves) {
+            previousTurnPlayer = gameState.getPlayerToMove();
+            previousTurnNumberOfMoves = gameState.getNumberOfLegalMoves();
+
             gameState.makeMove(move);
             int[] score = miniMax(depth - 1, !max, alpha, beta);
 
@@ -117,20 +121,26 @@ public class AI {
 
         if (gameState.isGameOver()) {
             if (numberOfBlackPieces == numberOfWhitePieces) {
-                eval = 0;
+                return TIE;
             } else if (numberOfBlackPieces + numberOfWhitePieces == 64) {
-                eval += numberOfBlackPieces > numberOfWhitePieces ? BLACK_WIN : WHITE_WIN;
+                return numberOfBlackPieces > numberOfWhitePieces ? BLACK_WIN : WHITE_WIN;
             } else {
-                eval += player == BLACK ? BLACK_WIN : WHITE_WIN;
+                return player == BLACK ? BLACK_WIN : WHITE_WIN;
             }
-            return eval;
         }
 
         //Evaluate board score
         boardScore = numberOfBlackPieces - numberOfWhitePieces;
 
-        //Evaluate disk placement
+        //Evaluate mobility
         if (currentType > 1) {
+            //Evaluate mobility
+            mobilityScore += (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
+            mobilityScore += (previousTurnPlayer == BLACK) ? previousTurnNumberOfMoves : -previousTurnNumberOfMoves;
+        }
+
+        //Evaluate disk placement
+        if (currentType > 2) {
             //long[] pieces = gameState.getPieces().clone();
             boolean[][] stablePieces = getStablePieces();
             for (int i = 0; i < 8; i++) {
@@ -155,9 +165,6 @@ public class AI {
                 placementScore += WHITE_DISK_PLACEMENT_TABLE[index];
                 pieces[WHITE] &= pieces[WHITE] - 1;
             }*/
-
-            //Evaluate mobility
-            mobilityScore = (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
         }
 
 
