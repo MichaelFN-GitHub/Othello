@@ -24,8 +24,8 @@ public class AI {
     //Version of the AI to test different versions against each other.
     private static final int BLACK_TYPE = 3;
     private static final int WHITE_TYPE = 3;
-    public static final int MAX_DEPTH_BLACK = 9;
-    public static final int MAX_DEPTH_WHITE = 9;
+    public static final int MAX_DEPTH_BLACK = 11;
+    public static final int MAX_DEPTH_WHITE = 11;
 
     private static BitboardGameState gameState;
     private static int evaluatedStates;
@@ -134,14 +134,12 @@ public class AI {
 
         //Evaluate mobility
         if (currentType > 1) {
-            //Evaluate mobility
             mobilityScore += (player == BLACK) ? gameState.getNumberOfLegalMoves() : -gameState.getNumberOfLegalMoves();
             mobilityScore += (previousTurnPlayer == BLACK) ? previousTurnNumberOfMoves : -previousTurnNumberOfMoves;
         }
 
         //Evaluate disk placement
         if (currentType > 2) {
-            //long[] pieces = gameState.getPieces().clone();
             boolean[][] stablePieces = getStablePieces();
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
@@ -153,30 +151,37 @@ public class AI {
                     }
                 }
             }
+        }
 
-            /*while(pieces[BLACK] != 0L) {
+        /*
+        //Evaluate disk placement
+        if (currentType > 2) {
+            boolean[][] stablePieces = getStablePieces();
+            long[] pieces = gameState.getPieces().clone();
+
+            while(pieces[BLACK] != 0L) {
                 int index = Long.numberOfTrailingZeros(pieces[BLACK]);
-                placementScore += BLACK_DISK_PLACEMENT_TABLE[index];
+                placementScore += (stablePieces[index/8][index%8]) ? STABLE_PIECE_SCORE : BLACK_DISK_PLACEMENT_TABLE[index];
                 pieces[BLACK] &= pieces[BLACK] - 1;
             }
 
             while(pieces[WHITE] != 0L) {
                 int index = Long.numberOfTrailingZeros(pieces[WHITE]);
-                placementScore += WHITE_DISK_PLACEMENT_TABLE[index];
+                placementScore += (stablePieces[index/8][index%8]) ? STABLE_PIECE_SCORE : WHITE_DISK_PLACEMENT_TABLE[index];
                 pieces[WHITE] &= pieces[WHITE] - 1;
-            }*/
-        }
+            }
+        }*/
 
 
         //Weigh scores based on game state (early, late)
         if (isEndGame) {
             eval += boardScore * END_GAME_WEIGHTS[BOARD_SCORE];
-            eval += placementScore * END_GAME_WEIGHTS[PLACEMENT];
             eval += mobilityScore * END_GAME_WEIGHTS[MOBILITY];
+            eval += placementScore * END_GAME_WEIGHTS[PLACEMENT];
         } else {
             eval += boardScore * EARLY_GAME_WEIGHTS[BOARD_SCORE];
-            eval += placementScore * EARLY_GAME_WEIGHTS[PLACEMENT];
             eval += mobilityScore * EARLY_GAME_WEIGHTS[MOBILITY];
+            eval += placementScore * EARLY_GAME_WEIGHTS[PLACEMENT];
         }
 
         return eval;
