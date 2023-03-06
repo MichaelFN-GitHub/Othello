@@ -18,6 +18,7 @@ public class AI {
     private static final int[] END_GAME_WEIGHTS = { 5, 0, 1 };
     private static final int STABLE_PIECE_SCORE = 4;
     private static final int END_GAME_CAP = 60;
+    private static final int END_GAME_DEPTH_CAP = 42;
     private static int previousTurnPlayer;
     private static int previousTurnNumberOfMoves;
 
@@ -40,13 +41,16 @@ public class AI {
         System.out.println("Finding best move...");
 
         int maxDepth = game.getPlayerToMove() == BLACK ? MAX_DEPTH_BLACK : MAX_DEPTH_WHITE;
+        if (game.getMoveCount() < END_GAME_DEPTH_CAP) {
+            maxDepth = 60-game.getMoveCount();
+        }
         currentType = game.getPlayerToMove() == BLACK ? BLACK_TYPE : WHITE_TYPE;
         evaluatedStates = 0;
         NumberFormat format = NumberFormat.getInstance();
         format.setGroupingUsed(true);
 
         long timeBeforeSearch = new Date().getTime();
-        int[] moveAndScore = miniMax(game, maxDepth);  //Search
+        int[] moveAndScore = miniMax(game, maxDepth);   //Search
         long timeAfterSearch = new Date().getTime();
         long searchTime = timeAfterSearch - timeBeforeSearch + 1;
 
@@ -82,7 +86,7 @@ public class AI {
             previousTurnNumberOfMoves = gameState.getNumberOfLegalMoves();
 
             gameState.makeMove(move);
-            int[] score = miniMax(depth - 1, !max, alpha, beta);
+            int[] score = miniMax(depth - 1, gameState.getPlayerToMove() == BLACK, alpha, beta);
 
             //Update best move if score > best score
             if ((max && score[1] > bestScore[1]) || (!max && score[1] < bestScore[1])) {
@@ -123,9 +127,9 @@ public class AI {
             if (numberOfBlackPieces == numberOfWhitePieces) {
                 return TIE;
             } else if (numberOfBlackPieces + numberOfWhitePieces == 64) {
-                return numberOfBlackPieces > numberOfWhitePieces ? BLACK_WIN : WHITE_WIN;
+                eval += numberOfBlackPieces > numberOfWhitePieces ? BLACK_WIN : WHITE_WIN;
             } else {
-                return player == BLACK ? BLACK_WIN : WHITE_WIN;
+                eval += player == BLACK ? BLACK_WIN : WHITE_WIN;
             }
         }
 
@@ -152,26 +156,6 @@ public class AI {
                 }
             }
         }
-
-        /*
-        //Evaluate disk placement
-        if (currentType > 2) {
-            boolean[][] stablePieces = getStablePieces();
-            long[] pieces = gameState.getPieces().clone();
-
-            while(pieces[BLACK] != 0L) {
-                int index = Long.numberOfTrailingZeros(pieces[BLACK]);
-                placementScore += (stablePieces[index/8][index%8]) ? STABLE_PIECE_SCORE : BLACK_DISK_PLACEMENT_TABLE[index];
-                pieces[BLACK] &= pieces[BLACK] - 1;
-            }
-
-            while(pieces[WHITE] != 0L) {
-                int index = Long.numberOfTrailingZeros(pieces[WHITE]);
-                placementScore += (stablePieces[index/8][index%8]) ? STABLE_PIECE_SCORE : WHITE_DISK_PLACEMENT_TABLE[index];
-                pieces[WHITE] &= pieces[WHITE] - 1;
-            }
-        }*/
-
 
         //Weigh scores based on game state (early, late)
         if (isEndGame) {
