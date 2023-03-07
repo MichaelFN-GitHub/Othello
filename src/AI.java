@@ -15,18 +15,18 @@ public class AI {
     private static final int MOBILITY = 1;
     private static final int PLACEMENT = 2;
     private static final int[] EARLY_GAME_WEIGHTS = { 0, 2, 2 };    //Disks, Mobility, Placement
-    private static final int[] END_GAME_WEIGHTS = { 5, 0, 1 };
+    private static final int[] END_GAME_WEIGHTS = { 5, 1, 1 };
     private static final int STABLE_PIECE_SCORE = 4;
-    private static final int END_GAME_CAP = 60;
-    private static final int END_GAME_DEPTH_CAP = 42;
+    private static final int END_GAME_CAP = 55;
+    private static final int END_GAME_DEPTH_CAP = 45;
     private static int previousTurnPlayer;
     private static int previousTurnNumberOfMoves;
 
     //Version of the AI to test different versions against each other.
     private static final int BLACK_TYPE = 3;
     private static final int WHITE_TYPE = 3;
-    public static final int MAX_DEPTH_BLACK = 11;
-    public static final int MAX_DEPTH_WHITE = 11;
+    public static final int MAX_DEPTH_BLACK = 9;
+    public static final int MAX_DEPTH_WHITE = 9;
 
     private static BitboardGameState gameState;
     private static int evaluatedStates;
@@ -42,7 +42,7 @@ public class AI {
 
         int maxDepth = game.getPlayerToMove() == BLACK ? MAX_DEPTH_BLACK : MAX_DEPTH_WHITE;
         if (game.getMoveCount() > END_GAME_DEPTH_CAP) {
-            maxDepth = 60-game.getMoveCount();
+            maxDepth = 61-game.getMoveCount();
         }
         currentType = game.getPlayerToMove() == BLACK ? BLACK_TYPE : WHITE_TYPE;
         evaluatedStates = 0;

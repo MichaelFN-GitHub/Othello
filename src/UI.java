@@ -2,11 +2,9 @@ import Engine.BitboardGameState;
 import Engine.GameState;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.List;
 import static Engine.BitboardGameState.BLACK;
 import static Engine.BitboardGameState.WHITE;
@@ -29,7 +27,7 @@ public class UI extends JPanel implements MouseListener, KeyListener {
         setPreferredSize(new Dimension(TILE_SIZE * TILES, TILE_SIZE * TILES));
 
         //Information panel
-        informationPanel = new InformationPanel(game);
+        informationPanel = new InformationPanel(this, game);
 
         //Main panel
         JPanel mainComponent = new JPanel();
@@ -108,6 +106,19 @@ public class UI extends JPanel implements MouseListener, KeyListener {
         informationPanel.repaint();
     }
 
+    private void undoMove() {
+        game.undoMove();
+        lastMove = -1;
+    }
+
+    private void makeAIMove() {
+        int move = AI.findNextMove(game);
+        if (move != -1) {
+            game.makeMove(move);
+        }
+        lastMove = move;
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
         Point mousePos = getMousePosition();
@@ -169,11 +180,50 @@ public class UI extends JPanel implements MouseListener, KeyListener {
     }
 
     private class InformationPanel extends JPanel {
+        private UI ui;
         private BitboardGameState bitboardGame;
 
-        public InformationPanel(BitboardGameState game) {
+        private JButton undoButton;
+        private JButton aiButton;
+
+        public InformationPanel(UI ui, BitboardGameState game) {
+            this.ui = ui;
             this.bitboardGame = game;
             setPreferredSize(new Dimension(TILE_SIZE * TILES, TILE_SIZE * 2));
+            setLayout(null);
+
+            JPanel buttonPane = new JPanel();
+            buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+            buttonPane.setBounds(TILE_SIZE*4 - TILE_SIZE - TILE_SIZE*3/4, TILE_SIZE + TILE_SIZE/4, TILE_SIZE*4, TILE_SIZE);
+
+            undoButton = new JButton("Undo move (U)");
+            aiButton = new JButton("Make AI move (A)");
+            undoButton.setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE/2));
+            aiButton.setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE/2));
+            undoButton.setFocusable(false);
+            aiButton.setFocusable(false);
+            buttonPane.add(undoButton);
+            buttonPane.add(aiButton);
+
+            add(buttonPane, BorderLayout.SOUTH);
+
+            //Undo button should undo move
+            undoButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    undoMove();
+                    ui.repaint();
+                }
+            });
+
+            //AI button should make AI move
+            aiButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    makeAIMove();
+                    ui.repaint();
+                }
+            });
         }
 
         @Override
@@ -221,6 +271,9 @@ public class UI extends JPanel implements MouseListener, KeyListener {
             g.setColor(Color.LIGHT_GRAY);
             g.drawString(text, getWidth() / 2 - textWidth / 2, getHeight() * 5 / 9);
 
+            //Buttons
+            undoButton.repaint();
+            aiButton.repaint();
         }
     }
 }
