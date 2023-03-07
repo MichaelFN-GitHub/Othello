@@ -1,4 +1,6 @@
 import Engine.BitboardGameState;
+import Engine.GameState;
+
 import static Engine.BitboardGameState.BLACK;
 import static Engine.BitboardGameState.WHITE;
 
@@ -25,10 +27,10 @@ public class AI {
     private static int previousTurnNumberOfMoves;
 
     //Version of the AI to test different versions against each other.
-    private static final int BLACK_TYPE = 1;
-    private static final int WHITE_TYPE = 2;
-    public static final int MAX_DEPTH_BLACK = 11;
-    public static final int MAX_DEPTH_WHITE = 11;
+    private static final int BLACK_TYPE = 3;
+    private static final int WHITE_TYPE = 3;
+    public static final int MAX_DEPTH_BLACK = 7;
+    public static final int MAX_DEPTH_WHITE = 7;
 
     private static BitboardGameState gameState;
     private static int evaluatedStates;
@@ -151,14 +153,21 @@ public class AI {
 
         //Evaluate disk placement
         if (currentType > 2) {
-            boolean[][] stablePieces = getStablePieces();
+            boolean[][] stablePiecesBlack = getStablePieces(BLACK);
+            boolean[][] stablePiecesWhite = getStablePieces(WHITE);
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
-                    if (stablePieces[i][j]) {
-                        placementScore += player == WHITE ? -STABLE_PIECE_SCORE : STABLE_PIECE_SCORE;
+                    if (stablePiecesBlack[i][j]) {
+                        placementScore += STABLE_PIECE_SCORE;
+                    }
+                    else if (stablePiecesWhite[i][j]) {
+                        placementScore -= STABLE_PIECE_SCORE;
                     }
                     else {
-                        placementScore += player == WHITE ? WHITE_DISK_PLACEMENT_TABLE[i*8+j] : BLACK_DISK_PLACEMENT_TABLE[i*8+j];
+                        int color = gameState.getPiece(i*8+j);
+                        if (color != -1) {
+                            placementScore += color == WHITE ? WHITE_DISK_PLACEMENT_TABLE[i*8+j] : BLACK_DISK_PLACEMENT_TABLE[i*8+j];
+                        }
                     }
                 }
             }
@@ -182,8 +191,7 @@ public class AI {
     }
 
     //Finds the stable pieces (pieces that cannot be taken).
-    private static boolean[][] getStablePieces() {
-        int side = gameState.getPlayerToMove();
+    private static boolean[][] getStablePieces(int side) {
         boolean[][] stablePieces = new boolean[8][8];
         for (int dx = -1; dx <= 1; dx+=2) {
             for (int dy = -1; dy <= 1; dy+=2) {
