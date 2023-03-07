@@ -50,7 +50,6 @@ public class BitboardGameState {
         //Change turn if no available moves
         if (legalMoveHistory[moveCount] == 0L) {
             changePlayerToMove();
-            moveCount++;
             legalMoveHistory[moveCount] = computeLegalMoves();
 
             //End game if no player has any legal moves
@@ -72,7 +71,6 @@ public class BitboardGameState {
         //Go back one more move if no available moves
         if (legalMoveHistory[moveCount] == 0L) {
             changePlayerToMove();
-            moveCount--;
         }
 
         int move = moveHistory[moveCount];
