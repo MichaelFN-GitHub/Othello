@@ -44,8 +44,8 @@ public class AI {
         System.out.println("Finding best move...");
 
         originalDepth = game.getPlayerToMove() == BLACK ? MAX_DEPTH_BLACK : MAX_DEPTH_WHITE;
-        if (game.getMoveCount() > END_GAME_DEPTH_CAP) {
-            originalDepth = 64-(game.getNumberOfBlackPieces()+game.getNumberOfWhitePieces());
+        if (game.getNumberOfMoves() > END_GAME_DEPTH_CAP) {
+            originalDepth = 60 - game.getNumberOfMoves();
         }
         currentType = game.getPlayerToMove() == BLACK ? BLACK_TYPE : WHITE_TYPE;
         evaluatedStates = 0;
@@ -128,7 +128,7 @@ public class AI {
         int player = gameState.getPlayerToMove();
         int numberOfBlackPieces = gameState.getNumberOfBlackPieces();
         int numberOfWhitePieces = gameState.getNumberOfWhitePieces();
-        boolean isEndGame = gameState.getMoveCount() > END_GAME_CAP;
+        boolean isEndGame = gameState.getNumberOfMoves() > END_GAME_CAP;
 
         if (gameState.isGameOver()) {
             if (numberOfBlackPieces == numberOfWhitePieces) {

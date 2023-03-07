@@ -235,8 +235,8 @@ public class BitboardGameState {
         return getPiece(x*8+y);
     }
 
-    public int getMoveCount() {
-        return moveCount;
+    public int getNumberOfMoves() {
+        return getNumberOfBlackPieces() + getNumberOfWhitePieces() - 4;
     }
 
     public boolean isGameOver() {
