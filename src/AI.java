@@ -41,7 +41,7 @@ public class AI {
         System.out.println("Finding best move...");
 
         int maxDepth = game.getPlayerToMove() == BLACK ? MAX_DEPTH_BLACK : MAX_DEPTH_WHITE;
-        if (game.getMoveCount() < END_GAME_DEPTH_CAP) {
+        if (game.getMoveCount() > END_GAME_DEPTH_CAP) {
             maxDepth = 60-game.getMoveCount();
         }
         currentType = game.getPlayerToMove() == BLACK ? BLACK_TYPE : WHITE_TYPE;
