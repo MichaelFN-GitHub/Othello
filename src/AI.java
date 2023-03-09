@@ -132,18 +132,17 @@ public class AI {
         int numberOfWhitePieces = gameState.getNumberOfWhitePieces();
         boolean isEndGame = gameState.getNumberOfMoves() > END_GAME_CAP;
 
+        //Evaluate board score
+        boardScore = numberOfBlackPieces - numberOfWhitePieces;
+
+        //Return if game is over
         if (gameState.isGameOver()) {
             if (numberOfBlackPieces == numberOfWhitePieces) {
                 return TIE;
-            } else if (numberOfBlackPieces + numberOfWhitePieces == 64) {
-                eval += numberOfBlackPieces > numberOfWhitePieces ? BLACK_WIN : WHITE_WIN;
             } else {
-                eval += player == BLACK ? BLACK_WIN : WHITE_WIN;
+                return boardScore + (numberOfBlackPieces > numberOfWhitePieces ? BLACK_WIN : WHITE_WIN);
             }
         }
-
-        //Evaluate board score
-        boardScore = numberOfBlackPieces - numberOfWhitePieces;
 
         //Evaluate mobility
         if (currentType > 1) {
