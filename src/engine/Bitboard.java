@@ -1,6 +1,9 @@
-package Engine;
+package engine;
 
 public class Bitboard {
+
+    //This class contains constants for bit boards.
+
     //Rank 8
     public static final long H8 = 1L;
     public static final long G8 = H8 << 1;

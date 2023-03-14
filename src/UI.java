@@ -1,15 +1,16 @@
-import Engine.BitboardGameState;
-import Engine.GameState;
+import engine.BitboardGameState;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import static Engine.BitboardGameState.BLACK;
-import static Engine.BitboardGameState.WHITE;
+import static engine.BitboardGameState.BLACK;
+import static engine.BitboardGameState.WHITE;
 
 public class UI extends JPanel implements MouseListener, KeyListener {
+
+    //This class contains the UI.
+
     public static final int TILES = 8;
     public static final int TILE_SIZE = 70;
     public static final int PIECE_SIZE = TILE_SIZE - TILE_SIZE / 10;
@@ -50,6 +51,7 @@ public class UI extends JPanel implements MouseListener, KeyListener {
         frame.addKeyListener(this);
     }
 
+    //Draws the board.
     @Override
     public void paint(Graphics g) {
         super.paint(g);
@@ -106,11 +108,13 @@ public class UI extends JPanel implements MouseListener, KeyListener {
         informationPanel.repaint();
     }
 
+    //Tell game state to undo the last move.
     private void undoMove() {
         game.undoMove();
         lastMove = -1;
     }
 
+    //Tell AI to make a move.
     private void makeAIMove() {
         int move = AI.findNextMove(game);
         if (move != -1) {
@@ -119,6 +123,7 @@ public class UI extends JPanel implements MouseListener, KeyListener {
         lastMove = move;
     }
 
+    //Mouse clicked on the board.
     @Override
     public void mouseClicked(MouseEvent e) {
         Point mousePos = getMousePosition();
@@ -157,6 +162,7 @@ public class UI extends JPanel implements MouseListener, KeyListener {
 
     }
 
+    //Shortcuts for undoing, running AI move and checking the current evaluation.
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyChar() == 'u') {
@@ -180,6 +186,9 @@ public class UI extends JPanel implements MouseListener, KeyListener {
     }
 
     private class InformationPanel extends JPanel {
+
+        //This class contains the UI above the board.
+
         private UI ui;
         private BitboardGameState bitboardGame;
 

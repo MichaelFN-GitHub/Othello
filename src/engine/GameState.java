@@ -1,8 +1,11 @@
-package Engine;
+package engine;
 
 import java.util.ArrayList;
 
 public class GameState {
+
+    //This is the old version of the game state. BitboardGameState is now used instead.
+
     public static final int EMPTY = 0;
     public static final int BLACK = 1;
     public static final int WHITE = 2;

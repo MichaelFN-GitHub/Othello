@@ -1,11 +1,14 @@
-package Engine;
+package engine;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static Engine.Bitboard.*;
+import static engine.Bitboard.*;
 
 public class BitboardGameState {
+
+    //This class is responsible for keeping track of the state of the game.
+
     public static final int BLACK = 0;
     public static final int WHITE = 1;
 
@@ -27,6 +30,7 @@ public class BitboardGameState {
         legalMoveHistory[moveCount] = computeLegalMoves();
     }
 
+    //Applies a specific move given as an integer.
     public void makeMove(int move) {
         long moveMask = setBit(0L, move);
         long flipped = getFlippedPieces(moveMask);
@@ -60,6 +64,7 @@ public class BitboardGameState {
         }
     }
 
+    //Undo the last move.
     public void undoMove() {
         if (moveCount == 0) {
             System.out.println("Cannot undo any more moves");
@@ -94,6 +99,7 @@ public class BitboardGameState {
         gameOver = false;
     }
 
+    //Returns the legal moves as a long.
     private long computeLegalMoves() {
         long result = 0L;
 
@@ -128,6 +134,7 @@ public class BitboardGameState {
         return result;
     }
 
+    //Calculates the pieces to be flipped as a long.
     private long getFlippedPieces(long moveMask) {
         long result = 0L;
 
@@ -179,17 +186,20 @@ public class BitboardGameState {
         return result;
     }
 
+    //Switches turns.
     private void changePlayerToMove() {
         playerToMove = 1 - playerToMove;
         inversePlayerToMove = 1 - inversePlayerToMove;
     }
 
+    //Sets up the initial state of the game.
     private void initializeStandardBoard() {
         pieces[BLACK] = E4 | D5;
         pieces[WHITE] = D4 | E5;
         numberOfPieces = new int[] {2,2};
     }
 
+    //Returns the legal moves for the current player as a list of integers.
     public List<Integer> getLegalMoves() {
         ArrayList<Integer> result = new ArrayList<>();
         long moves = legalMoveHistory[moveCount];
@@ -201,26 +211,27 @@ public class BitboardGameState {
         return result;
     }
 
+    //Returns the number of legal moves for the current player.
     public int getNumberOfLegalMoves() {
         return Long.bitCount(legalMoveHistory[moveCount]);
     }
 
+    //Returns the number of black pieces.
     public int getNumberOfBlackPieces() {
         return numberOfPieces[BLACK];
     }
 
+    //Returns the number of white pieces.
     public int getNumberOfWhitePieces() {
         return numberOfPieces[WHITE];
     }
 
+    //Returns the current player to move.
     public int getPlayerToMove() {
         return playerToMove;
     }
 
-    public long[] getPieces() {
-        return pieces;
-    }
-
+    //Returns the piece at the position given by index.
     public int getPiece(int index) {
         if (getBit(pieces[BLACK], index) != 0) {
             return BLACK;
@@ -231,18 +242,22 @@ public class BitboardGameState {
         }
     }
 
+    //Returns the piece at (x,y).
     public int getPiece(int x, int y) {
         return getPiece(x*8+y);
     }
 
+    //Returns the total number of moves that have been performed in the game so far.
     public int getNumberOfMoves() {
         return getNumberOfBlackPieces() + getNumberOfWhitePieces() - 4;
     }
 
+    //Returns whether the game is over.
     public boolean isGameOver() {
         return gameOver;
     }
 
+    //Checks if a specific move is legal.
     public boolean isLegalMove(int move) {
         for (int legalMove : getLegalMoves()) {
             if (move == legalMove) {
@@ -252,7 +267,7 @@ public class BitboardGameState {
         return false;
     }
 
-    //--------------HELPER FUNCTIONS--------------
+    //--------------HELPER FUNCTIONS FOR BITBOARD--------------
     private long north(long bitboard) {
         return (bitboard & ~RANK_1) << 8;
     }
@@ -291,23 +306,5 @@ public class BitboardGameState {
 
     private long setBit(long bitboard, int index) {
         return bitboard | (1L << index);
-    }
-
-    private long clearBit(long bitboard, int index) {
-        if (getBit(bitboard, index) > 0) {
-            return bitboard ^ (1L << index);
-        }
-        return bitboard;
-    }
-
-    private void printBitboard(long bitboard) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                int square = (i * 8 + j);
-                System.out.print((getBit(bitboard, square) > 0 ? 1 : 0) + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
     }
 }

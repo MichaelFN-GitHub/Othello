@@ -1,4 +1,4 @@
-import Engine.BitboardGameState;
+import engine.BitboardGameState;
 
 public class Main {
     public static void main(String[] args) {

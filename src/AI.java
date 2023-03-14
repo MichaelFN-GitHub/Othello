@@ -1,16 +1,17 @@
-import Engine.BitboardGameState;
-import Engine.GameState;
+import engine.BitboardGameState;
 
-import static Engine.BitboardGameState.BLACK;
-import static Engine.BitboardGameState.WHITE;
+import static engine.BitboardGameState.BLACK;
+import static engine.BitboardGameState.WHITE;
 
 import java.text.NumberFormat;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class AI {
+
+    //This class contains code for the AI.
+
     //Evaluation constants.
     public static final int BLACK_WIN = 999999;
     public static final int WHITE_WIN = -999999;
@@ -26,7 +27,7 @@ public class AI {
     private static int previousTurnPlayer;
     private static int previousTurnNumberOfMoves;
 
-    //Version of the AI to test different versions against each other.
+    //Version of the AI to test different versions against each other. Version 3 is the newest one.
     private static final int BLACK_TYPE = 3;
     private static final int WHITE_TYPE = 3;
     public static final int MAX_DEPTH_BLACK = 7;
@@ -37,6 +38,7 @@ public class AI {
     private static int currentType;
     private static int originalDepth;
 
+    //Searches for a move using the minimax algorithm with cutoff.
     public static int findNextMove(BitboardGameState game) {
         gameState = game;
         if (game.isGameOver()) {
@@ -72,11 +74,13 @@ public class AI {
         return moveAndScore[0];
     }
 
-    public static int[] miniMax(BitboardGameState game, int depth) {
+    //Performs the minimax algorithm with a specific cutoff depth.
+    private static int[] miniMax(BitboardGameState game, int depth) {
         return miniMax(depth, game.getPlayerToMove() == BLACK, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
-    public static int[] miniMax(int depth, boolean max, int alpha, int beta) {
+    //Recursively performs the minimax algorithm with alpha-beta pruning and cutoff.
+    private static int[] miniMax(int depth, boolean max, int alpha, int beta) {
         evaluatedStates++;
 
         if (depth == 0 || gameState.isGameOver()) {
@@ -121,6 +125,7 @@ public class AI {
         return bestScore;
     }
 
+    //Our evaluation function for the cutoff depth.
     private static int evaluation(BitboardGameState gameState) {
         int eval = 0;
         int boardScore = 0;
@@ -219,10 +224,12 @@ public class AI {
         return stablePieces;
     }
 
+    //Returns the evaluation of the given game state.
     public static int getEvaluation(BitboardGameState gameState) {
         return evaluation(gameState);
     }
 
+    //Table used for static board score for black.
     private static final int[] BLACK_DISK_PLACEMENT_TABLE =
             {
                     4, -3,  2,  2,  2,  2, -3,  4,
@@ -235,6 +242,8 @@ public class AI {
                     4, -3,  2,  2,  2,  2, -3,  4,
             };
 
+
+    //Calculates the static board table for white.
     private static final int[] WHITE_DISK_PLACEMENT_TABLE = new int[64];
     static {
         for (int i = 0; i < 64; i++) {
