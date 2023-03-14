@@ -1,4 +1,4 @@
-import Engine.BitboardGameState;
+import engine.BitboardGameState;
 
 import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
