@@ -21,7 +21,11 @@ public class UI extends JPanel implements MouseListener, KeyListener {
 
     private int lastMove = -1;
 
-    public UI(BitboardGameState game) {
+    public static final boolean AUTOPLAY_ENABLED = true;
+    private final PlayOnline autoPlayer = new PlayOnline();
+
+
+    public UI(BitboardGameState game) throws AWTException {
         this.game = game;
 
         //Game panel (UI)
@@ -115,10 +119,11 @@ public class UI extends JPanel implements MouseListener, KeyListener {
     }
 
     //Tell AI to make a move.
-    private void makeAIMove() {
+    private void makeAIMove() throws InterruptedException {
         int move = AI.findNextMove(game);
         if (move != -1) {
             game.makeMove(move);
+            if(AUTOPLAY_ENABLED) autoPlayer.moveAndClickOnline(move, true);
         }
         lastMove = move;
     }
@@ -126,6 +131,7 @@ public class UI extends JPanel implements MouseListener, KeyListener {
     //Mouse clicked on the board.
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println("mouse clicked x: " + e.getX() + " y: " + e.getY());
         Point mousePos = getMousePosition();
         int y = mousePos.x / TILE_SIZE;
         int x = mousePos.y / TILE_SIZE;
@@ -172,6 +178,15 @@ public class UI extends JPanel implements MouseListener, KeyListener {
             int move = AI.findNextMove(game);
             if (move != -1) {
                 game.makeMove(move);
+                if(AUTOPLAY_ENABLED){
+                    try {
+                        autoPlayer.moveAndClickOnline(move, true); // TODO: need delay after??
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    autoPlayer.updateBoard(move); // TODO: not necessary if we run on other thread instead
+                    System.out.println("====READY====");
+                }
             }
             lastMove = move;
         } else if (e.getKeyChar() == 's') {
@@ -182,6 +197,13 @@ public class UI extends JPanel implements MouseListener, KeyListener {
                 game.makeMove(move);
             }
             lastMove = move;
+        } else if (e.getKeyChar() == 'o') {
+            if(AUTOPLAY_ENABLED) {
+                autoPlayer.getPlayerMove(true);
+                System.out.println("====READY====");
+            }
+        } else if (e.getKeyChar() == 'j') {
+            if(AUTOPLAY_ENABLED) autoPlayer.printCurrentBoard();
         }
         repaint();
     }
@@ -235,7 +257,11 @@ public class UI extends JPanel implements MouseListener, KeyListener {
             aiButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    makeAIMove();
+                    try {
+                        makeAIMove();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     ui.repaint();
                 }
             });
