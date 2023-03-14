@@ -176,6 +176,12 @@ public class UI extends JPanel implements MouseListener, KeyListener {
             lastMove = move;
         } else if (e.getKeyChar() == 's') {
             System.out.println("Current evaluation of board: " + AI.getEvaluation(game));
+        } else if (e.getKeyChar() == 'm') {
+            int move = MCTS.MCTS(game);
+            if (move != -1) {
+                game.makeMove(move);
+            }
+            lastMove = move;
         }
         repaint();
     }
